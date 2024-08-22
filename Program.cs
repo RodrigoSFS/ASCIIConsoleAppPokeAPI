@@ -89,8 +89,6 @@ class Program
             Console.WriteLine($"Height: {pokemon.Height}");
             Console.WriteLine($"Weight: {pokemon.Weight}");
             
-
-            // Display the abilities
             Console.WriteLine("Abilities:");
             foreach (var abilityInfo in pokemon.Abilities)
             {
@@ -102,59 +100,17 @@ class Program
             if (!string.IsNullOrEmpty(pokemon.Sprites.FrontDefault))
             {
                 // This open the image in the default browser.
-                // Console.WriteLine("Opening sprite in the default web browser...");
-                // Process.Start(new ProcessStartInfo
-                // {
-                //     FileName = pokemon.Sprites.FrontDefault,
-                //     UseShellExecute = true
-                // });
-
-                await DisplaySpriteAsAsciiArt(pokemon.Sprites.FrontDefault);
+                Console.WriteLine("Opening sprite in the default web browser...");
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = pokemon.Sprites.FrontDefault,
+                    UseShellExecute = true
+                });
             }
         }
         else
         {
             Console.WriteLine("Pokémon not found!");
-        }
-
-        static async Task DisplaySpriteAsAsciiArt(string imageUrl)
-        {
-            using var client = new HttpClient();
-            try
-            {
-                var imageData = await client.GetByteArrayAsync(imageUrl);
-
-                // Load the image
-                using Image<Rgba32> image = Image.Load<Rgba32>(imageData);
-                
-                // Resize the image for better ASCII representation
-                image.Mutate(x => x.Resize(image.Width, image.Height)); // Adjust resize factor as needed
-
-                for (int y = 0; y < image.Height; y++)
-                {
-                    for (int x = 0; x < image.Width; x++)
-                    {
-                        var pixel = image[x, y];
-                        char asciiChar = GetAsciiChar(pixel);
-                        Console.Write(asciiChar, System.Drawing.Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B));
-                    }
-                    Console.WriteLine();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-        }
-
-        static char GetAsciiChar(Rgba32 pixel)
-        {
-            // Calculate brightness manually
-            float brightness = 0.2126f * pixel.R + 0.7152f * pixel.G + 0.0722f * pixel.B;
-            // Map brightness to ASCII characters
-            const string chars = "@%#*+=-:. "; // Characters mapped from darkest to lightest
-            int index = (int)(brightness / 255.0f * (chars.Length - 1));
-            return chars[index];
         }
     }
 }
