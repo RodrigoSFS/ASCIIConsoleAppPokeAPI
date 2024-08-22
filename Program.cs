@@ -123,10 +123,8 @@ class Program
             try
             {
                 var imageData = await client.GetByteArrayAsync(imageUrl);
-
-                // Load the image
                 using Image<Rgba32> image = Image.Load<Rgba32>(imageData);
-                
+
                 // Resize the image for better ASCII representation
                 image.Mutate(x => x.Resize(image.Width, image.Height)); // Adjust resize factor as needed
 
@@ -136,7 +134,9 @@ class Program
                     {
                         var pixel = image[x, y];
                         char asciiChar = GetAsciiChar(pixel);
-                        Console.Write(asciiChar, System.Drawing.Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B));
+
+                        // Print the ASCII character
+                        Console.Write(asciiChar);
                     }
                     Console.WriteLine();
                 }
@@ -151,10 +151,11 @@ class Program
         {
             // Calculate brightness manually
             float brightness = 0.2126f * pixel.R + 0.7152f * pixel.G + 0.0722f * pixel.B;
+
             // Map brightness to ASCII characters
             const string chars = "@%#*+=-:. "; // Characters mapped from darkest to lightest
             int index = (int)(brightness / 255.0f * (chars.Length - 1));
-            return chars[index];
+            return chars[chars.Length - 1 - index]; // Reverse index to match dark-to-light mapping
         }
     }
 }
