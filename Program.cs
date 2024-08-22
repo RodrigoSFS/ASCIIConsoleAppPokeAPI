@@ -58,8 +58,8 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        Console.Write("Enter the name of a Pokémon: ");
-        string pokemonName = Console.ReadLine()?.ToLower();
+        // Console.Write("Enter the name of a Pokémon: ");
+        string pokemonName = args[0]?.ToLower();
 
         using var client = new HttpClient();
 
