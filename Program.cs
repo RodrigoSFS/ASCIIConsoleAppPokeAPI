@@ -8,154 +8,113 @@ using Colorful;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using Console = Colorful.Console;
-using System.Text.Json.Serialization;
+using Console = Colorful.Console; 
 
-
-
-
-// Define a class to hold the data for a Pokémon
-public class Pokemon
+namespace PokeAPI
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public int Height { get; set; }
-    public int Weight { get; set; }
-
-    public Sprites Sprites { get; set; }
-
-    public List<TypeInfo>? Types { get; set; }
-    public List<AbilityInfo>? Abilities { get; set; }
-}
-
-public class Sprites
-{
-    [JsonPropertyName("front_default")]
-    public string FrontDefault { get; set; }
-}
-
-public class TypeInfo
-{
-    public Type Type { get; set; }
-}
-
-public class Type
-{
-    public string Name { get; set; }
-}
-
-public class AbilityInfo
-{
-    public Ability Ability { get; set; }
-}
-
-public class Ability
-{
-    public string Name { get; set; }
-}
-
-class Program
-{
-    static async Task Main(string[] args)
+    public class Program
     {
-        // Console.Write("Enter the name of a Pokémon: ");
-        string pokemonName = args[0]?.ToLower();
-
-        using var client = new HttpClient();
-
-        var pokemon = new Pokemon();
-        
-        try 
+        public static async Task Main(string[] args)
         {
-            pokemon = await client.GetFromJsonAsync<Pokemon>($"https://pokeapi.co/api/v2/pokemon/{pokemonName}");
-        }
-        catch(HttpRequestException ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-        
+            // Console.Write("Enter the name of a Pokémon: ");
+            string pokemonName = args[0]?.ToLower();
 
-        if (pokemon.Name != null)
-        {
-            Console.WriteLine($"Name: {pokemon.Name}");
-            Console.WriteLine($"ID: {pokemon.Id}");
-            
-            Console.WriteLine("Types:");
-            foreach (var type in pokemon.Types)
-            {
-                Console.WriteLine($"- {type.Type.Name}");
-            }
-            
-            Console.WriteLine($"Height: {pokemon.Height}");
-            Console.WriteLine($"Weight: {pokemon.Weight}");
-            
-
-            // Display the abilities
-            Console.WriteLine("Abilities:");
-            foreach (var abilityInfo in pokemon.Abilities)
-            {
-                Console.WriteLine($"- {abilityInfo.Ability.Name}");
-            }
-
-            Console.WriteLine($"Sprite URL: {pokemon.Sprites.FrontDefault}");
-
-            if (!string.IsNullOrEmpty(pokemon.Sprites.FrontDefault))
-            {
-                // This open the image in the default browser.
-                // Console.WriteLine("Opening sprite in the default web browser...");
-                // Process.Start(new ProcessStartInfo
-                // {
-                //     FileName = pokemon.Sprites.FrontDefault,
-                //     UseShellExecute = true
-                // });
-
-                await DisplaySpriteAsAsciiArt(pokemon.Sprites.FrontDefault);
-            }
-        }
-        else
-        {
-            Console.WriteLine("Pokémon not found!");
-        }
-
-        static async Task DisplaySpriteAsAsciiArt(string imageUrl)
-        {
             using var client = new HttpClient();
-            try
+
+            var pokemon = new Pokemon();
+            
+            try 
             {
-                var imageData = await client.GetByteArrayAsync(imageUrl);
-                using Image<Rgba32> image = Image.Load<Rgba32>(imageData);
+                pokemon = await client.GetFromJsonAsync<Pokemon>($"https://pokeapi.co/api/v2/pokemon/{pokemonName}");
+            }
+            catch(HttpRequestException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            
 
-                // Resize the image for better ASCII representation
-                image.Mutate(x => x.Resize(image.Width, image.Height)); // Adjust resize factor as needed
-
-                for (int y = 0; y < image.Height; y++)
+            if (pokemon.Name != null)
+            {
+                Console.WriteLine($"Name: {pokemon.Name}");
+                Console.WriteLine($"ID: {pokemon.Id}");
+                
+                Console.WriteLine("Types:");
+                foreach (var type in pokemon.Types)
                 {
-                    for (int x = 0; x < image.Width; x++)
-                    {
-                        var pixel = image[x, y];
-                        char asciiChar = GetAsciiChar(pixel);
+                    Console.WriteLine($"- {type.Type.Name}");
+                }
+                
+                Console.WriteLine($"Height: {pokemon.Height}");
+                Console.WriteLine($"Weight: {pokemon.Weight}");
+                
 
-                        // Print the ASCII character
-                        Console.Write(asciiChar);
-                    }
-                    Console.WriteLine();
+                // Display the abilities
+                Console.WriteLine("Abilities:");
+                foreach (var abilityInfo in pokemon.Abilities)
+                {
+                    Console.WriteLine($"- {abilityInfo.Ability.Name}");
+                }
+
+                Console.WriteLine($"Sprite URL: {pokemon.Sprites.FrontDefault}");
+
+                if (!string.IsNullOrEmpty(pokemon.Sprites.FrontDefault))
+                {
+                    // This open the image in the default browser.
+                    // Console.WriteLine("Opening sprite in the default web browser...");
+                    // Process.Start(new ProcessStartInfo
+                    // {
+                    //     FileName = pokemon.Sprites.FrontDefault,
+                    //     UseShellExecute = true
+                    // });
+
+                    await DisplaySpriteAsAsciiArt(pokemon.Sprites.FrontDefault);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine("Pokémon not found!");
             }
-        }
 
-        static char GetAsciiChar(Rgba32 pixel)
-        {
-            // Calculate brightness manually
-            float brightness = 0.2126f * pixel.R + 0.7152f * pixel.G + 0.0722f * pixel.B;
+            static async Task DisplaySpriteAsAsciiArt(string imageUrl)
+            {
+                using var client = new HttpClient();
+                try
+                {
+                    var imageData = await client.GetByteArrayAsync(imageUrl);
+                    using Image<Rgba32> image = Image.Load<Rgba32>(imageData);
 
-            // Map brightness to ASCII characters
-            const string chars = "@%#*+=-:. "; // Characters mapped from darkest to lightest
-            int index = (int)(brightness / 255.0f * (chars.Length - 1));
-            return chars[chars.Length - 1 - index]; // Reverse index to match dark-to-light mapping
+                    // Resize the image for better ASCII representation
+                    image.Mutate(x => x.Resize(image.Width, image.Height)); // Adjust resize factor as needed
+
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        for (int x = 0; x < image.Width; x++)
+                        {
+                            var pixel = image[x, y];
+                            char asciiChar = GetAsciiChar(pixel);
+
+                            // Print the ASCII character
+                            Console.Write(asciiChar);
+                        }
+                        Console.WriteLine();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+            }
+
+            static char GetAsciiChar(Rgba32 pixel)
+            {
+                // Calculate brightness manually
+                float brightness = 0.2126f * pixel.R + 0.7152f * pixel.G + 0.0722f * pixel.B;
+
+                // Map brightness to ASCII characters
+                const string chars = "@%#*+=-:. "; // Characters mapped from darkest to lightest
+                int index = (int)(brightness / 255.0f * (chars.Length - 1));
+                return chars[chars.Length - 1 - index]; // Reverse index to match dark-to-light mapping
+            }
         }
     }
 }
