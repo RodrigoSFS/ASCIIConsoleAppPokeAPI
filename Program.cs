@@ -16,9 +16,41 @@ namespace PokeAPI
     {
         public static async Task Main(string[] args)
         {
-            // Console.Write("Enter the name of a Pokémon: ");
-            string pokemonName = args[0]?.ToLower();
 
+            string pokemonName = "";
+            bool valid = false;
+
+            Console.Clear();
+
+            do
+            {
+                Console.Write("Enter the name of a Pokémon or '0' to exit the application: ");
+                pokemonName = Console.ReadLine()?.ToLower();
+
+                if (string.IsNullOrWhiteSpace(pokemonName))
+                {
+                    //Console.Clear();
+
+                    valid = false;
+                    Console.WriteLine("You Typed nothing, enter a Pokemon name or '0' to exit");
+                    Console.WriteLine();
+
+                }
+                else if (pokemonName == "0")
+                {
+                    //Console.Clear();
+
+                    Console.WriteLine("Goodbye...");
+                    Environment.Exit(0);
+                } else
+                {
+                    valid = CheckSpecialChars(pokemonName);
+                }
+
+            } while (valid == false);
+
+            
+            
             using var client = new HttpClient();
 
             var pokemon = new Pokemon();
@@ -59,14 +91,6 @@ namespace PokeAPI
 
                 if (!string.IsNullOrEmpty(pokemon.Sprites.FrontDefault))
                 {
-                    // This open the image in the default browser.
-                    // Console.WriteLine("Opening sprite in the default web browser...");
-                    // Process.Start(new ProcessStartInfo
-                    // {
-                    //     FileName = pokemon.Sprites.FrontDefault,
-                    //     UseShellExecute = true
-                    // });
-
                     await DisplaySpriteAsAsciiArt(pokemon.Sprites.FrontDefault);
                 }
             }
@@ -114,6 +138,33 @@ namespace PokeAPI
                 const string chars = "@%#*+=-:. "; // Characters mapped from darkest to lightest
                 int index = (int)(brightness / 255.0f * (chars.Length - 1));
                 return chars[chars.Length - 1 - index]; // Reverse index to match dark-to-light mapping
+            }
+
+            static bool CheckSpecialChars(string text)
+            {
+
+                bool flag;
+                bool result = true;
+                List<char> specialChars = new List<char>
+                {
+                '`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+',
+                '[', '{', ']', '}', '\\', '|', ';', ':', '\'', '"', ',', '<', '.', '>', '/', '?',
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+                };
+
+                foreach (var character in specialChars)
+                {
+                    flag = text.Contains(character);
+                    if (flag == true)
+                    {
+                        Console.WriteLine($"Não utilize caracteres especiais ou números, caracter inválido: {character}");
+                        Console.WriteLine();
+
+                        return false;
+                    }
+                }
+
+                return result;
             }
         }
     }
