@@ -1,4 +1,4 @@
-A Console App in .NET that make requests to PokeAPI and draws Pokemons with ASCII characters on the terminal window characters with some information.
+A Console App in .NET that make requests to PokeAPI and draws Pokemons with ASCII characters on the terminal window with some additional information.
 
 It has three branches, this one, the Master branch, has the application displaying the Pokemons on the terminal window with colors.
 The ImageInBrowser branch opens the default browser configured on the machine's default OP system.
